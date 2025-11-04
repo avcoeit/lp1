@@ -1,0 +1,73 @@
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Plot styling
+sns.set_style("whitegrid")
+plt.style.use("fivethirtyeight")
+df = pd.read_csv("/home/sagar/Documents/LP1/Admission_Predict.csv")
+print("\nFirst 5 rows:\n", df.head())
+
+
+df.info()
+
+print("\nSize of dataset:", df.size)
+print("\nShape of dataset:", df.shape)
+print("\nStatistical Summary:\n", df.describe())
+print("\nDataset Head:\n", df.head())
+
+
+print("\nData Types Count:\n", df.dtypes.value_counts())
+numeric_cols = df.columns[df.dtypes != 'object']
+print("\nMissing Values:\n", df[numeric_cols].isnull())
+print("\nMissing Values Count:\n", df[numeric_cols].isnull().sum().sort_values(ascending=False))
+
+print("\nMissing Values %:\n", df[numeric_cols].isnull().sum().sort_values(ascending=False) / len(df))
+
+dataset = df.copy()
+scaler = StandardScaler()
+cols_to_scale = ['GRE Score', 'CGPA']
+dataset[cols_to_scale] = scaler.fit_transform(dataset[cols_to_scale])
+
+
+X = dataset.drop('target', axis=1)
+y = dataset['target']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+
+tree_clf = DecisionTreeClassifier(random_state=42)
+tree_clf.fit(X_train, y_train)
+
+
+def print_score(clf, X_train, y_train, X_test, y_test, train=True):
+    if train:
+        pred = clf.predict(X_train)
+        clf_report = pd.DataFrame(classification_report(y_train, pred, output_dict=True))
+        print("\nTRAIN RESULTS\n" + "="*50)
+        print(f"Accuracy: {accuracy_score(y_train, pred) * 100:.2f}%")
+        print("\nClassification Report:\n", clf_report)
+        print("\nConfusion Matrix:\n", confusion_matrix(y_train, pred))
+    else:
+        pred = clf.predict(X_test)
+        clf_report = pd.DataFrame(classification_report(y_test, pred, output_dict=True))
+        print("\nTEST RESULTS\n" + "="*50)
+        print(f"Accuracy: {accuracy_score(y_test, pred) * 100:.2f}%")
+        print("\nClassification Report:\n", clf_report)
+        print("\nConfusion Matrix:\n", confusion_matrix(y_test, pred))
+
+
+print_score(tree_clf, X_train, y_train, X_test, y_test, train=True)
+print_score(tree_clf, X_train, y_train, X_test, y_test, train=False)
+
+# Extra Accuracy Prints
+print("\nFinal Train Accuracy:", accuracy_score(y_train, tree_clf.predict(X_train)) * 100)
+print("Final Test Accuracy:", accuracy_score(y_test, tree_clf.predict(X_test)) * 100)
+

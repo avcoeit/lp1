@@ -1,0 +1,67 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn import metrics
+
+# Load dataset
+dataset = pd.read_csv('/home/sagar/Documents/LP1/temperatures.csv')
+print("Dataset shape:", dataset.shape)
+print(dataset.describe())
+
+# Scatter plot (JAN vs FEB)
+plt.figure(figsize=(8,5))
+plt.scatter(dataset['JAN'], dataset['FEB'], color='blue')
+plt.title('JAN vs FEB')
+plt.xlabel('JAN (mintemp)')
+plt.ylabel('FEB (maxtemp)')
+plt.show()
+
+# Histogram + KDE for FEB column
+plt.figure(figsize=(10,6))
+sns.histplot(dataset['FEB'], kde=True)
+plt.title('Distribution of FEB Temperatures')
+plt.show()
+
+# Split data
+X = dataset['JAN'].values.reshape(-1, 1)
+y = dataset['FEB'].values.reshape(-1, 1)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+
+# Train model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+print("Intercept:", model.intercept_)
+print("Coefficient:", model.coef_)
+
+# Predictions
+y_pred = model.predict(X_test)
+
+# Compare actual vs predicted
+df = pd.DataFrame({'Actual': y_test.flatten(), 'Predicted': y_pred.flatten()})
+print(df)
+
+# Bar plot (first 25 values)
+df1 = df.head(25)
+df1.plot(kind='bar', figsize=(12,6))
+plt.grid(which='major', linestyle='-', linewidth='0.5', color='green')
+plt.grid(which='minor', linestyle=':', linewidth='0.5', color='black')
+plt.title("Actual vs Predicted (First 25 Samples)")
+plt.show()
+
+# Regression line visualization
+plt.scatter(X_test, y_test, color='gray')
+plt.plot(X_test, y_pred, color='red', linewidth=2)
+plt.title("Regression Line")
+plt.xlabel("JAN Temp")
+plt.ylabel("FEB Temp")
+plt.show()
+
+# Evaluation metrics
+print("Mean Absolute Error:", metrics.mean_absolute_error(y_test, y_pred))
+print("Mean Squared Error:", metrics.mean_squared_error(y_test, y_pred))
+print("Root Mean Squared Error:", np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
