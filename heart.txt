@@ -6,7 +6,7 @@ import statistics as s
 sns.set_style("whitegrid")
 plt.style.use("fivethirtyeight")
 
-df = pd.read_csv("/home/avcoe/heart.csv")
+df = pd.read_csv("/home/sagar/Music/heart.csv")
 df.head()
 
 #information of the dataset
@@ -76,21 +76,21 @@ def print_score(clf, X_train, y_train, X_test, y_test, train=True):
     if train:
         pred = clf.predict(X_train)
         clf_report = pd.DataFrame(classification_report(y_train, pred, output_dict=True))
-        print("Train Result:\n====")
+        print("Train Result:\n================================================")
         print("Accuracy Score: {accuracy_score(y_train, pred) * 100:.2f}%")
-        print("__")
+        print("_______________________________________________")
         print("CLASSIFICATION REPORT:\n{clf_report}")
-        print("____")
+        print("_______________________________________________")
         print("Confusion Matrix: \n {confusion_matrix(y_train, pred)}\n")
         
     elif train==False:
         pred = clf.predict(X_test)
         clf_report = pd.DataFrame(classification_report(y_test, pred, output_dict=True))
-        print("Test Result:\n====")        
+        print("Test Result:\n================================================")        
         print("Accuracy Score: {accuracy_score(y_test, pred) * 100:.2f}%")
-        print("____")
+        print("_______________________________________________")
         print("CLASSIFICATION REPORT:\n{clf_report}")
-        print("____")
+        print("_______________________________________________")
         print("Confusion Matrix: \n {confusion_matrix(y_test, pred)}\n")
 
 
@@ -123,6 +123,5 @@ train_score = accuracy_score(y_train, lr_clf.predict(X_train)) * 100
 results_df = pd.DataFrame(data=[["Logistic Regression", train_score, test_score]], 
                           columns=['Model', 'Training Accuracy %', 'Testing Accuracy %'])
 results_df
-
 
 
