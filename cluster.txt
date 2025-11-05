@@ -5,18 +5,17 @@ import seaborn as sns
 from sklearn.cluster import KMeans
 
 
-mall_data = pd.read_csv("/home/sagar/Documents/LP1/Mall_Customers.csv")
+mall_data = pd.read_csv("/home/sagar/Music/Mall_Customers.csv")
 mall_data.head()
 
 #values
 mall_data.info()
 
 
-# We can use a heatmap to check correlation between the variables.
-corr = mall_data.corr()
+corr = mall_data.select_dtypes(include=['number']).corr()
 plt.figure(figsize=(8,8))
-sns.heatmap(corr,cbar=True,square=True,fmt='.1f',annot=True,cmap='Reds')
-
+sns.heatmap(corr, cbar=True, square=True, fmt='.1f', annot=True, cmap='Reds')
+plt.show()
 
 # Which gender shops more?
 plt.figure(figsize=(10,10))
@@ -80,4 +79,3 @@ ax.set_ylabel('Anual Income-->')
 ax.set_zlabel('Spending Score-->')
 ax.legend()
 plt.show()
-
