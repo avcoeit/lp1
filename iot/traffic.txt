@@ -1,0 +1,98 @@
+// ====== Pin Configuration ======
+#define TRIG1 2
+#define ECHO1 3
+#define LED1 8
+
+#define TRIG2 4
+#define ECHO2 5
+#define LED2 9
+
+#define TRIG3 6
+#define ECHO3 7
+#define LED3 10
+
+#define TRIG4 11
+#define ECHO4 12
+#define LED4 13
+
+int threshold = 20; // detection distance in cm
+
+// ====== Setup ======
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(TRIG1, OUTPUT); pinMode(ECHO1, INPUT); pinMode(LED1, OUTPUT);
+  pinMode(TRIG2, OUTPUT); pinMode(ECHO2, INPUT); pinMode(LED2, OUTPUT);
+  pinMode(TRIG3, OUTPUT); pinMode(ECHO3, INPUT); pinMode(LED3, OUTPUT);
+  pinMode(TRIG4, OUTPUT); pinMode(ECHO4, INPUT); pinMode(LED4, OUTPUT);
+}
+
+// ====== Function to get distance ======
+long getDistance(int trigPin, int echoPin) {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  long duration = pulseIn(echoPin, HIGH);
+  long distance = duration * 0.034 / 2;
+  return distance;
+}
+
+// ====== Loop ======
+void loop() {
+
+  long d1 = getDistance(TRIG1, ECHO1);
+  long d2 = getDistance(TRIG2, ECHO2);
+  long d3 = getDistance(TRIG3, ECHO3);
+  long d4 = getDistance(TRIG4, ECHO4);
+
+  Serial.print("S1: "); Serial.print(d1); Serial.print(" cm   ");
+  Serial.print("S2: "); Serial.print(d2); Serial.print(" cm   ");
+  Serial.print("S3: "); Serial.print(d3); Serial.print(" cm   ");
+  Serial.print("S4: "); Serial.println(d4);
+
+  // Sensor 1 LED control
+  if (d1 <= threshold && d1 > 0) {
+    digitalWrite(LED1, HIGH);
+    delay(200);
+    digitalWrite(LED1, LOW);
+    delay(200);
+  } else digitalWrite(LED1, LOW);
+
+  // Sensor 2 LED control
+  if (d2 <= threshold && d2 > 0) {
+    digitalWrite(LED2, HIGH);
+    delay(200);
+    digitalWrite(LED2, LOW);
+    delay(200);
+  } else digitalWrite(LED2, LOW);
+
+  // Sensor 3 LED control
+  if (d3 <= threshold && d3 > 0) {
+    digitalWrite(LED3, HIGH);
+    delay(200);
+    digitalWrite(LED3, LOW);
+    delay(200);
+  } else digitalWrite(LED3, LOW);
+
+  // Sensor 4 LED control
+  if (d4 <= threshold && d4 > 0) {
+    digitalWrite(LED4, HIGH);
+    delay(200);
+    digitalWrite(LED4, LOW);
+    delay(200);
+  } else digitalWrite(LED4, LOW);
+
+}
+
+| Sensor       | TRIG Pin | ECHO Pin | LED Pin |
+| ------------ | -------- | -------- | ------- |
+| Ultrasonic 1 | D2       | D3       | D8      |
+| Ultrasonic 2 | D4       | D5       | D9      |
+| Ultrasonic 3 | D6       | D7       | D10     |
+| Ultrasonic 4 | D11      | D12      | D13     |
+✅ All ultrasonic VCC → 5V
+✅ All ultrasonic GND → GND
+✅ All LEDs need resistor (220 Ω)

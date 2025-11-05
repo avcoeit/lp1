@@ -1,0 +1,71 @@
+#include <ESP8266WiFi.h>
+#include <ThingSpeak.h>
+#include "DHT.h"
+
+// ---------- WiFi + ThingSpeak Setup ----------
+const char* ssid = "YOUR_WIFI_NAME";
+const char* password = "YOUR_WIFI_PASSWORD";
+
+unsigned long myChannelNumber = YOUR_CHANNEL_ID;   // Example: 123456
+const char * myWriteAPIKey = "YOUR_WRITE_API_KEY";
+
+WiFiClient client;
+
+// ---------- DHT Sensor Setup ----------
+#define DHTPIN 2        // D4 on NodeMCU
+#define DHTTYPE DHT11   // Use DHT22 if needed
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, password);
+  
+  Serial.print("Connecting to WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWiFi Connected!");
+
+  ThingSpeak.begin(client);
+  dht.begin();
+}
+
+void loop() {
+  float h = dht.readHumidity();
+  float t = dht.readTemperature(); // Celsius
+  
+  if (isnan(h) || isnan(t)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return;
+  }
+
+  Serial.print("Temperature: ");
+  Serial.print(t);
+  Serial.print("°C | Humidity: ");
+  Serial.print(h);
+  Serial.println("%");
+
+  // Write to ThingSpeak Fields
+  ThingSpeak.setField(1, t);
+  ThingSpeak.setField(2, h);
+
+  int x = ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
+
+  if (x == 200) {
+    Serial.println("Data sent to ThingSpeak successfully!");
+  } else {
+    Serial.println("Error sending data: " + String(x));
+  }
+
+  delay(20000);  // ThingSpeak minimum update = 15 seconds
+}
+
+
+| DHT Pin | NodeMCU Pin |
+| ------- | ----------- |
+| VCC     | 3.3V        |
+| GND     | GND         |
+| DATA    | D4 (GPIO2)  |
+
